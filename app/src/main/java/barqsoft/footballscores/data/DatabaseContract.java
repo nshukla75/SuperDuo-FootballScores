@@ -13,25 +13,27 @@ public class DatabaseContract
     public static final String CONTENT_AUTHORITY = "barqsoft.footballscores";
     public static Uri BASE_CONTENT_URI = Uri.parse("content://" + CONTENT_AUTHORITY);
     public static final String PATH = "scores";
+    public static final String PATH_RECENT = "recent";
 
     // table name
     public static final String SCORES_TABLE = "scores_table";
 
     public static final class scores_table implements BaseColumns
     {
-        //Table data
+        // column names
         public static final String LEAGUE_COL = "league";
         public static final String DATE_COL = "date";
         public static final String TIME_COL = "time";
         public static final String HOME_COL = "home";
-        public static final String AWAY_COL = "away";
+        public static final String HOME_ID_COL = "home_id";
+        public static final String HOME_LOGO_COL = "home_logo";
         public static final String HOME_GOALS_COL = "home_goals";
+        public static final String AWAY_COL = "away";
+        public static final String AWAY_ID_COL = "away_id";
+        public static final String AWAY_LOGO_COL = "away_logo";
         public static final String AWAY_GOALS_COL = "away_goals";
-        public static final String MATCH_ID = "match_id";
         public static final String MATCH_DAY = "match_day";
-
-        //public static Uri SCORES_CONTENT_URI = BASE_CONTENT_URI.buildUpon().appendPath(PATH)
-                //.build();
+        public static final String MATCH_ID = "match_id";
 
         //Types
         public static final String CONTENT_TYPE =
@@ -50,6 +52,9 @@ public class DatabaseContract
         public static Uri buildScoreWithDate()
         {
             return BASE_CONTENT_URI.buildUpon().appendPath("date").build();
+        }
+        public static Uri buildScoreMostRecent() {
+            return BASE_CONTENT_URI.buildUpon().appendPath(PATH_RECENT).build();
         }
     }
 
