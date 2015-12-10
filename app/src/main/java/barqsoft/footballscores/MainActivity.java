@@ -3,24 +3,48 @@ package barqsoft.footballscores;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.TextView;
 
-public class MainActivity extends ActionBarActivity
+public class MainActivity extends AppCompatActivity
 {
-    public static int selected_match_id;
-    public static int current_fragment = 2;
     public static String LOG_TAG = "MainActivity";
-    private final String save_tag = "Save Test";
+
+    // the mainfragment containing the viewpager
     private PagerFragment my_main;
+
+    // keep the currently selected fragment (page)
+    public static int current_fragment = 2;
+
+    public static int selected_match_id;
+    private final String save_tag = "Save Test";
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         Log.d(LOG_TAG, "Reached MainActivity onCreate");
+
+        // set a toolbar as supportactionbar, with default title homebutton disabled
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().setDisplayShowTitleEnabled(false);
+            getSupportActionBar().setDisplayHomeAsUpEnabled(false);
+
+            // get the toolbar title view and set the title
+            TextView titleView = (TextView) findViewById(R.id.toolbar_title);
+            titleView.setText(R.string.app_name);
+        }
+
         if (savedInstanceState == null) {
             my_main = new PagerFragment();
+            my_main.setArguments(getIntent().getExtras());
             getSupportFragmentManager().beginTransaction()
                     .add(R.id.container, my_main)
                     .commit();
