@@ -19,7 +19,6 @@ public class ScoresDBHelper extends SQLiteOpenHelper
 
     public ScoresDBHelper(Context context)
     {
-
         super(context,DATABASE_NAME,null,DATABASE_VERSION);
     }
 

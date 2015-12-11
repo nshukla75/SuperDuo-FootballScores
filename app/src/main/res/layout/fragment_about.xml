@@ -1,16 +1,30 @@
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
-    android:layout_height="match_parent" android:paddingLeft="@dimen/activity_horizontal_margin"
-    android:paddingRight="@dimen/activity_horizontal_margin"
-    android:paddingTop="@dimen/activity_vertical_margin"
-    android:paddingBottom="@dimen/activity_vertical_margin"
-    tools:context="barqsoft.footballscores.AboutActivity$PlaceholderFragment">
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:layout_marginTop="@dimen/toolbar_height"
+    android:padding="@dimen/small_margin"
+    tools:context=".AboutActivity$PlaceholderFragment">
 
-    <TextView android:text="@string/about_text"
+    <!-- App title -->
+    <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:gravity="center"
-        android:textSize="12sp"
+        android:gravity="start"
+        android:layout_marginBottom="@dimen/small_margin"
+        android:textSize="@dimen/Score"
+        android:text="@string/app_name"
         />
 
-</RelativeLayout>
+    <!-- About text -->
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:gravity="start"
+        android:textSize="@dimen/TeamNames"
+        android:textDirection="anyRtl"
+        android:text="@string/about_text"
+        />
+
+</LinearLayout>

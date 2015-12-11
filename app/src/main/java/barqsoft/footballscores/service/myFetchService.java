@@ -19,9 +19,12 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Locale;
 import java.util.TimeZone;
 import java.util.Vector;
 
+import barqsoft.footballscores.BuildConfig;
+import barqsoft.footballscores.Utility;
 import barqsoft.footballscores.data.DatabaseContract;
 import barqsoft.footballscores.R;
 
@@ -36,121 +39,152 @@ public class myFetchService extends IntentService
         super("myFetchService");
     }
 
+    // leagues we want to include
+    private static int[] LEAGUE_CODES;
+
+    private Vector<ContentValues> mTeamsVector;
+
     @Override
     protected void onHandleIntent(Intent intent)
     {
-        getData("n2");
-        getData("p2");
+        // get selected leagues from resources array
+        LEAGUE_CODES = getResources().getIntArray(R.array.leagues_selected);
 
-        return;
+        // keep the teams details (logo urls)
+        mTeamsVector = new Vector <ContentValues> ();
+        // check if we have a network connection
+        if (Utility.isNetworkAvailable(getApplicationContext())) {
+
+            // load the team logos
+            fetchTeams();
+
+            // load fixtures for last- and next 2 days
+            fetchFixture("p2");
+            fetchFixture("n3");
+        }
     }
+    private void fetchTeams() {
 
-    private void getData (String timeFrame)
-    {
-        //Creating fetch URL
-        final String BASE_URL = "http://api.football-data.org/alpha/fixtures"; //Base URL
-        final String QUERY_TIME_FRAME = "timeFrame"; //Time Frame parameter to determine days
-        //final String QUERY_MATCH_DAY = "matchday";
+        // for each league get the teams
+        for (final int code : LEAGUE_CODES) {
+            try {
+                // construct api teams query url by adding the soccerseasons, leaguecode, and teams path
+                URL queryTeamsUrl = new URL(Uri.parse(getString(R.string.config_footballdata_api_base_url))
+                        .buildUpon()
+                        .appendPath(getString(R.string.config_footballdata_api_seasons))
+                        .appendPath(Integer.toString(code))
+                        .appendPath(getString(R.string.config_footballdata_api_teams))
+                        .build()
+                        .toString());
 
-        Uri fetch_build = Uri.parse(BASE_URL).buildUpon().
-                appendQueryParameter(QUERY_TIME_FRAME, timeFrame).build();
-        //Log.v(LOG_TAG, "The url we are looking at is: "+fetch_build.toString()); //log spam
-        HttpURLConnection m_connection = null;
-        BufferedReader reader = null;
-        String JSON_data = null;
-        //Opening Connection
+                // query the api and get the teams
+                String teams = queryFootballDataApi(queryTeamsUrl);
+
+                // process the returned json data
+                if (teams != null) {
+                    processTeams(teams);
+                } else {
+                    Log.d(LOG_TAG, getString(R.string.failed_loading_teams) +": "+ code);
+                }
+            } catch (Exception e) {
+                Log.e(LOG_TAG, "Exception here in loadTeams: " + e.getMessage());
+            }
+        }
+    }
+    private void processTeams(String teamsString) {
+
+        // json element names
+        final String TEAMS = getString(R.string.config_footballdata_api_teams);
+        final String LINKS = "_links";
+        final String SELF = "self";
+        final String CREST_URL = "crestUrl";
+
+        final String SELF_LINK = getString(R.string.config_footballdata_api_base_url) +"/"+ getString(R.string.config_footballdata_api_teams) +"/";
+
+        // get teams and add the id and logo url to the vector
         try {
-            URL fetch = new URL(fetch_build.toString());
-            m_connection = (HttpURLConnection) fetch.openConnection();
-            m_connection.setRequestMethod("GET");
-            m_connection.addRequestProperty("X-Auth-Token",getString(R.string.api_key));
-            m_connection.connect();
+            JSONArray teams = new JSONObject(teamsString).getJSONArray(TEAMS);
 
-            // Read the input stream into a String
-            InputStream inputStream = m_connection.getInputStream();
-            StringBuffer buffer = new StringBuffer();
-            if (inputStream == null) {
-                // Nothing to do.
-                return;
-            }
-            reader = new BufferedReader(new InputStreamReader(inputStream));
+            if (teams.length() > 0) {
+                for(int i = 0;i < teams.length();i++) {
 
-            String line;
-            while ((line = reader.readLine()) != null) {
-                // Since it's JSON, adding a newline isn't necessary (it won't affect parsing)
-                // But it does make debugging a *lot* easier if you print out the completed
-                // buffer for debugging.
-                buffer.append(line + "\n");
-            }
-            if (buffer.length() == 0) {
-                // Stream was empty.  No point in parsing.
-                return;
-            }
-            JSON_data = buffer.toString();
-        }
-        catch (Exception e)
-        {
-            Log.e(LOG_TAG,"Exception here" + e.getMessage());
-        }
-        finally {
-            if(m_connection != null)
-            {
-                m_connection.disconnect();
-            }
-            if (reader != null)
-            {
-                try {
-                    reader.close();
+                    // get the team
+                    JSONObject team = teams.getJSONObject(i);
+
+                    // extract the team id from href in links.self
+                    String teamId = team.getJSONObject(LINKS).getJSONObject(SELF).getString("href");
+                    teamId = teamId.replace(SELF_LINK, "");
+
+                    // get the cresturl
+                    String teamLogoUrl = team.getString(CREST_URL);
+
+                    // optionally convert .svg urls to .png urls
+                    //  android does not work well with .svg graphics (at least a library is needed)
+                    //  luckily wikimedia has an option to serve alternative versions of an image
+                    //  the algorithm is to add 'thumb/' in the path and
+                    //  add the required filetype plus the px resolution as a pre-fix of the filename:
+                    //  SVG original:   https://upload.wikimedia.org/wikipedia/de/d/d8/Heracles_Almelo.svg
+                    //  PNG 200px:	    https://upload.wikimedia.org/wikipedia/de/thumb/d/d8/Heracles_Almelo.svg/200px-Heracles_Almelo.svg.png
+                    if (teamLogoUrl != null && teamLogoUrl.endsWith(".svg")) {
+                        String svgLogoUrl = teamLogoUrl;
+                        String filename = svgLogoUrl.substring(svgLogoUrl.lastIndexOf("/") + 1);
+                        int wikipediaPathEndPos = svgLogoUrl.indexOf("/wikipedia/") + 11;
+                        String afterWikipediaPath = svgLogoUrl.substring(wikipediaPathEndPos);
+                        int thumbInsertPos = wikipediaPathEndPos + afterWikipediaPath.indexOf("/") + 1;
+                        String afterLanguageCodePath = svgLogoUrl.substring(thumbInsertPos);
+                        teamLogoUrl = svgLogoUrl.substring(0, thumbInsertPos);
+                        teamLogoUrl += "thumb/" + afterLanguageCodePath;
+                        teamLogoUrl += "/200px-" + filename + ".png";
+                    }
+
+                    // create contentvalues object containing the team details
+                    ContentValues teamValues = new ContentValues();
+                    teamValues.put(DatabaseContract.scores_table.HOME_ID_COL, Integer.parseInt(teamId));
+                    teamValues.put(DatabaseContract.scores_table.HOME_LOGO_COL, teamLogoUrl);
+
+                    // add team to the vector
+                    mTeamsVector.add(teamValues);
                 }
-                catch (IOException e)
-                {
-                    Log.e(LOG_TAG,"Error Closing Stream");
-                }
-            }
-        }
-        try {
-            if (JSON_data != null) {
-                //This bit is to check if the data contains any matches. If not, we call processJson on the dummy data
-                JSONArray matches = new JSONObject(JSON_data).getJSONArray("fixtures");
-                if (matches.length() == 0) {
-                    //if there is no data, call the function on dummy data
-                    //this is expected behavior during the off season.
-                    processJSONdata(getString(R.string.dummy_data), getApplicationContext(), false);
-                    return;
-                }
-
-
-                processJSONdata(JSON_data, getApplicationContext(), true);
             } else {
-                //Could not Connect
-                Log.d(LOG_TAG, "Could not connect to server.");
+                Log.e(LOG_TAG, "No teams found");
             }
-        }
-        catch(Exception e)
-        {
-            Log.e(LOG_TAG,e.getMessage());
+        } catch (JSONException e) {
+            Log.e(LOG_TAG, e.getMessage());
         }
     }
-    private void processJSONdata (String JSONdata,Context mContext, boolean isReal)
-    {
-        //JSON data
-        // This set of league codes is for the 2015/2016 season. In fall of 2016, they will need to
-        // be updated. Feel free to use the codes
-        final String BUNDESLIGA1 = "394";
-        final String BUNDESLIGA2 = "395";
-        final String LIGUE1 = "396";
-        final String LIGUE2 = "397";
-        final String PREMIER_LEAGUE = "398";
-        final String PRIMERA_DIVISION = "399";
-        final String SEGUNDA_DIVISION = "400";
-        final String SERIE_A = "401";
-        final String PRIMERA_LIGA = "402";
-        final String Bundesliga3 = "403";
-        final String EREDIVISIE = "404";
+    private void fetchFixture (String timeFrame) {
+        try {
+            // construct api fixtures query url by adding the fixtures path and timeframe param to the base url
+            URL queryFixturesUrl = new URL(Uri.parse(getString(R.string.config_footballdata_api_base_url))
+                    .buildUpon()
+                    .appendPath(getString(R.string.config_footballdata_api_fixtures))
+                    .appendQueryParameter(getString(R.string.config_footballdata_api_param_timeframe), timeFrame)
+                    .build()
+                    .toString());
 
+            // get match data for the next 2 days from api
+            String fixtures = queryFootballDataApi(queryFixturesUrl);
 
-        final String SEASON_LINK = "http://api.football-data.org/alpha/soccerseasons/";
-        final String MATCH_LINK = "http://api.football-data.org/alpha/fixtures/";
+            // process the returned json data and insert found matches into the database
+            if (fixtures != null) {
+                getApplicationContext().getContentResolver().bulkInsert(
+                        DatabaseContract.BASE_CONTENT_URI,
+                        processFixtures(fixtures));
+            } else {
+                Log.d(LOG_TAG, getString(R.string.failed_loading_teams));
+            }
+        } catch (Exception e) {
+            Log.e(LOG_TAG, "Exception here in loadFixtures: " + e.getMessage());
+        }
+    }
+    private ContentValues[] processFixtures(String fixturesString) {
+
+        ContentValues[] fixturesArray = null;
+
+        // indicator for real or dummy data
+        boolean isReal = true;
+
+        // json element names
         final String FIXTURES = "fixtures";
         final String LINKS = "_links";
         final String SOCCER_SEASON = "soccerseason";
@@ -162,116 +196,194 @@ public class myFetchService extends IntentService
         final String HOME_GOALS = "goalsHomeTeam";
         final String AWAY_GOALS = "goalsAwayTeam";
         final String MATCH_DAY = "matchday";
+        final String HOME_TEAM_ID = "homeTeam";
+        final String AWAY_TEAM_ID = "awayTeam";
 
-        //Match data
-        String League = null;
-        String mDate = null;
-        String mTime = null;
-        String Home = null;
-        String Away = null;
-        String Home_goals = null;
-        String Away_goals = null;
-        String match_id = null;
-        String match_day = null;
+        final String SEASON_LINK = getString(R.string.config_footballdata_api_base_url) +"/"+
+                getString(R.string.config_footballdata_api_seasons) +"/";
+        final String MATCH_LINK = getString(R.string.config_footballdata_api_base_url) +"/"+
+                getString(R.string.config_footballdata_api_fixtures) +"/";
+        final String TEAM_LINK = getString(R.string.config_footballdata_api_base_url) +"/"+
+                getString(R.string.config_footballdata_api_teams) +"/";
 
-
+        // get matches and convert them to an array
         try {
-            JSONArray matches = new JSONObject(JSONdata).getJSONArray(FIXTURES);
+            JSONArray fixtures = new JSONObject(fixturesString).getJSONArray(FIXTURES);
 
+            // load dummy data if no matches found
+            if (fixtures.length() == 0) {
+                fixturesString = getString(R.string.dummy_data);
+                fixtures = new JSONObject(fixturesString).getJSONArray(FIXTURES);
+                isReal = false;
+            }
 
-            //ContentValues to be inserted
-            Vector<ContentValues> values = new Vector <ContentValues> (matches.length());
-            for(int i = 0;i < matches.length();i++)
-            {
+            // create contentvalues vector with length of amount of matches
+            Vector<ContentValues> fixturesVector = new Vector <ContentValues> (fixtures.length());
 
-                JSONObject match_data = matches.getJSONObject(i);
-                League = match_data.getJSONObject(LINKS).getJSONObject(SOCCER_SEASON).
-                        getString("href");
-                League = League.replace(SEASON_LINK,"");
-                //This if statement controls which leagues we're interested in the data from.
-                //add leagues here in order to have them be added to the DB.
-                // If you are finding no data in the app, check that this contains all the leagues.
-                // If it doesn't, that can cause an empty DB, bypassing the dummy data routine.
-                if(     League.equals(PREMIER_LEAGUE)      ||
-                        League.equals(SERIE_A)             ||
-                        League.equals(BUNDESLIGA1)         ||
-                        League.equals(BUNDESLIGA2)         ||
-                        League.equals(PRIMERA_DIVISION)     )
-                {
-                    match_id = match_data.getJSONObject(LINKS).getJSONObject(SELF).
-                            getString("href");
-                    match_id = match_id.replace(MATCH_LINK, "");
-                    if(!isReal){
-                        //This if statement changes the match ID of the dummy data so that it all goes into the database
-                        match_id=match_id+Integer.toString(i);
+            for(int i = 0;i < fixtures.length(); i++) {
+
+                // get the match
+                JSONObject fixture = fixtures.getJSONObject(i);
+
+                // extract league from href in links.soccerseason
+                String leagueValue = fixture.getJSONObject(LINKS).getJSONObject(SOCCER_SEASON).getString("href");
+                leagueValue = leagueValue.replace(SEASON_LINK, "");
+                int league = Integer.parseInt(leagueValue);
+
+                // only include matches from selected leagues
+                if (Utility.contains(LEAGUE_CODES, league)) {
+
+                    // extract the match id from href in links.self
+                    String matchId = fixture.getJSONObject(LINKS).getJSONObject(SELF).getString("href");
+                    matchId = matchId.replace(MATCH_LINK, "");
+
+                    // extract the home team id from href in links.homeTeam
+                    String homeTeamIdString = fixture.getJSONObject(LINKS).getJSONObject(HOME_TEAM_ID).getString("href");
+                    homeTeamIdString = homeTeamIdString.replace(TEAM_LINK, "");
+                    int homeTeamId = Integer.parseInt(homeTeamIdString);
+
+                    // extract the away team id from href in links.awayTeam
+                    String awayTeamIdString = fixture.getJSONObject(LINKS).getJSONObject(AWAY_TEAM_ID).getString("href");
+                    awayTeamIdString = awayTeamIdString.replace(TEAM_LINK, "");
+                    int awayTeamId = Integer.parseInt(awayTeamIdString);
+
+                    // increment the match id of the dummy data (makes it unique)
+                    if (!isReal) {
+                        matchId = matchId + Integer.toString(i);
                     }
 
-                    mDate = match_data.getString(MATCH_DATE);
-                    mTime = mDate.substring(mDate.indexOf("T") + 1, mDate.indexOf("Z"));
-                    mDate = mDate.substring(0,mDate.indexOf("T"));
-                    SimpleDateFormat match_date = new SimpleDateFormat("yyyy-MM-ddHH:mm:ss");
-                    match_date.setTimeZone(TimeZone.getTimeZone("UTC"));
+                    // get the date and time from match date field
+                    String date = fixture.getString(MATCH_DATE);
+                    String time = date.substring(date.indexOf("T") + 1, date.indexOf("Z"));
+                    date = date.substring(0, date.indexOf("T"));
+                    SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-ddHH:mm:ss", Locale.US);
+                    simpleDateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
+
+                    // convert date and time to local datetime and extract date and time again
                     try {
-                        Date parseddate = match_date.parse(mDate+mTime);
-                        SimpleDateFormat new_date = new SimpleDateFormat("yyyy-MM-dd:HH:mm");
-                        new_date.setTimeZone(TimeZone.getDefault());
-                        mDate = new_date.format(parseddate);
-                        mTime = mDate.substring(mDate.indexOf(":") + 1);
-                        mDate = mDate.substring(0,mDate.indexOf(":"));
+                        Date parsedDate = simpleDateFormat.parse(date + time);
+                        SimpleDateFormat newDate = new SimpleDateFormat("yyyy-MM-dd:HH:mm", Locale.US);
+                        newDate.setTimeZone(TimeZone.getDefault());
+                        date = newDate.format(parsedDate);
+                        time = date.substring(date.indexOf(":") + 1);
+                        date = date.substring(0, date.indexOf(":"));
 
-                        if(!isReal){
-                            //This if statement changes the dummy data's date to match our current date range.
-                            Date fragmentdate = new Date(System.currentTimeMillis()+((i-2)*86400000));
-                            SimpleDateFormat mformat = new SimpleDateFormat("yyyy-MM-dd");
-                            mDate=mformat.format(fragmentdate);
+                        // change the dummy data's date to match current date range
+                        if(!isReal) {
+                            Date dummyDate = new Date(System.currentTimeMillis() + ((i-2)*86400000));
+                            SimpleDateFormat dummyDateFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.US);
+                            date = dummyDateFormat.format(dummyDate);
                         }
+                    } catch (Exception e) {
+                        Log.e(LOG_TAG, e.getMessage());
                     }
-                    catch (Exception e)
-                    {
-                        Log.d(LOG_TAG, "error here!");
-                        Log.e(LOG_TAG,e.getMessage());
-                    }
-                    Home = match_data.getString(HOME_TEAM);
-                    Away = match_data.getString(AWAY_TEAM);
-                    Home_goals = match_data.getJSONObject(RESULT).getString(HOME_GOALS);
-                    Away_goals = match_data.getJSONObject(RESULT).getString(AWAY_GOALS);
-                    match_day = match_data.getString(MATCH_DAY);
-                    ContentValues match_values = new ContentValues();
-                    match_values.put(DatabaseContract.scores_table.MATCH_ID,match_id);
-                    match_values.put(DatabaseContract.scores_table.DATE_COL,mDate);
-                    match_values.put(DatabaseContract.scores_table.TIME_COL,mTime);
-                    match_values.put(DatabaseContract.scores_table.HOME_COL,Home);
-                    match_values.put(DatabaseContract.scores_table.AWAY_COL,Away);
-                    match_values.put(DatabaseContract.scores_table.HOME_GOALS_COL,Home_goals);
-                    match_values.put(DatabaseContract.scores_table.AWAY_GOALS_COL,Away_goals);
-                    match_values.put(DatabaseContract.scores_table.LEAGUE_COL,League);
-                    match_values.put(DatabaseContract.scores_table.MATCH_DAY,match_day);
-                    //log spam
 
-                    //Log.v(LOG_TAG,match_id);
-                    //Log.v(LOG_TAG,mDate);
-                    //Log.v(LOG_TAG,mTime);
-                    //Log.v(LOG_TAG,Home);
-                    //Log.v(LOG_TAG,Away);
-                    //Log.v(LOG_TAG,Home_goals);
-                    //Log.v(LOG_TAG,Away_goals);
+                    // create contentvalues object containing the match details
+                    ContentValues fixtureValues = new ContentValues();
+                    fixtureValues.put(DatabaseContract.scores_table.MATCH_ID, matchId);
+                    fixtureValues.put(DatabaseContract.scores_table.DATE_COL, date);
+                    fixtureValues.put(DatabaseContract.scores_table.TIME_COL, time);
+                    fixtureValues.put(DatabaseContract.scores_table.HOME_COL, fixture.getString(HOME_TEAM));
+                    fixtureValues.put(DatabaseContract.scores_table.HOME_ID_COL, homeTeamId);
+                    fixtureValues.put(DatabaseContract.scores_table.HOME_LOGO_COL, getTeamLogoById(homeTeamId));
+                    fixtureValues.put(DatabaseContract.scores_table.HOME_GOALS_COL, fixture.getJSONObject(RESULT).getString(HOME_GOALS));
+                    fixtureValues.put(DatabaseContract.scores_table.AWAY_COL, fixture.getString(AWAY_TEAM));
+                    fixtureValues.put(DatabaseContract.scores_table.AWAY_ID_COL, awayTeamId);
+                    fixtureValues.put(DatabaseContract.scores_table.AWAY_LOGO_COL, getTeamLogoById(awayTeamId));
+                    fixtureValues.put(DatabaseContract.scores_table.AWAY_GOALS_COL, fixture.getJSONObject(RESULT).getString(AWAY_GOALS));
+                    fixtureValues.put(DatabaseContract.scores_table.LEAGUE_COL, league);
+                    fixtureValues.put(DatabaseContract.scores_table.MATCH_DAY, fixture.getString(MATCH_DAY));
 
-                    values.add(match_values);
+                    // add match to the vector
+                    fixturesVector.add(fixtureValues);
                 }
             }
-            int inserted_data = 0;
-            ContentValues[] insert_data = new ContentValues[values.size()];
-            values.toArray(insert_data);
-            inserted_data = mContext.getContentResolver().bulkInsert(
-                    DatabaseContract.BASE_CONTENT_URI,insert_data);
 
-            //Log.v(LOG_TAG,"Succesfully Inserted : " + String.valueOf(inserted_data));
-        }
-        catch (JSONException e)
-        {
-            Log.e(LOG_TAG,e.getMessage());
+            // convert vector to array
+            fixturesArray = new ContentValues[fixturesVector.size()];
+            fixturesVector.toArray(fixturesArray);
+
+        } catch (JSONException e) {
+            Log.e(LOG_TAG, "Exception here in processFixtures: " + e.getMessage());
         }
 
+        return fixturesArray;
+    }
+    private String queryFootballDataApi(URL apiUrl) {
+
+        String apiResult = null;
+
+        // check if we have a network connection
+        if (Utility.isNetworkAvailable(getApplicationContext())) {
+
+            HttpURLConnection apiConnection = null;
+            BufferedReader apiReader = null;
+
+            if (apiUrl != null) {
+                try {
+
+                    Log.d(LOG_TAG, "=============> querying api: " + apiUrl.toString());
+
+                    // open connection
+                    apiConnection = (HttpURLConnection) apiUrl.openConnection();
+                    apiConnection.setRequestMethod("GET");
+                    apiConnection.addRequestProperty("X-Auth-Token", BuildConfig.FOOTBALL_DATA_API_KEY );
+                    apiConnection.connect();
+
+                    // read the input stream into a string
+                    InputStream inputStream = apiConnection.getInputStream();
+                    if (inputStream == null) {
+                        return null;
+                    }
+
+                    // read the result from the inputstream into a buffer
+                    apiReader = new BufferedReader(new InputStreamReader(inputStream));
+                    StringBuilder buffer = new StringBuilder();
+                    String line;
+                    while ((line = apiReader.readLine()) != null) {
+                        buffer.append(line);
+                    }
+
+                    // get the result as a string
+                    if (buffer.length() > 0) {
+                        apiResult = buffer.toString();
+                    } else {
+                        return null;
+                    }
+
+                } catch (Exception e) {
+                    Log.e(LOG_TAG, "Exception here in queryFootballDataApi: " + e.getMessage());
+                } finally {
+
+                    // disconnect the api connection and close the reader
+                    if (apiConnection != null) {
+                        apiConnection.disconnect();
+                    }
+                    if (apiReader != null) {
+                        try {
+                            apiReader.close();
+                        } catch (IOException e) {
+                            Log.e(LOG_TAG, "Error Closing Stream");
+                        }
+                    }
+                }
+            }
+        } else {
+            return null;
+        }
+
+        return apiResult;
+    }
+    private String getTeamLogoById(int teamId) {
+
+        // loop through the teams and return logo url when team id found
+        for (ContentValues team: mTeamsVector) {
+            if (team.getAsInteger(DatabaseContract.scores_table.HOME_ID_COL).equals(teamId)) {
+                return team.getAsString(DatabaseContract.scores_table.HOME_LOGO_COL);
+            }
+        }
+
+        return "";
     }
 }
 

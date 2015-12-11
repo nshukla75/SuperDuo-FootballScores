@@ -117,6 +117,17 @@ public class Utility
         }
     }
 
+    public static boolean contains(final int[] array, final int key) {
+
+        // loop and return true when found
+        for (final int i : array) {
+            if (i == key) {
+                return true;
+            }
+        }
+
+        return false;
+    }
     public static boolean startFootballDataService(Activity activity) {
 
         // check if we have a network connection and the football data api key is set
