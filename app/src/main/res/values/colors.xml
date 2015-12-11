@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <!-- green palette -->
-    <color name="primary">#50C0E9</color>
-    <color name="primary_dark">#24ADDE</color>
+    <color name="primary">#24ADDE</color>
+    <color name="primary_dark">#0099CC</color>
     <color name="primary_light">#A8DFF4</color>
     <color name="primary_text">#212121</color>
     <color name="secondary_text">#727272</color>
-    <color name="score_details">#C8E6C9</color>
-    <color name="score_selected">#E8F5E9</color>
+    <color name="score_details">#C5EAF8</color>
+    <color name="score_selected">#E2F4FB</color>
 
     <color name="grey01">#ededed</color>
 
