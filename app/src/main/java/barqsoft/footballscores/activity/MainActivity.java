@@ -9,7 +9,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.TextView;
 
-import barqsoft.footballscores.adapter.PagerFragment;
+import barqsoft.footballscores.fragment.PagerFragment;
 import barqsoft.footballscores.R;
 
 public class MainActivity extends AppCompatActivity

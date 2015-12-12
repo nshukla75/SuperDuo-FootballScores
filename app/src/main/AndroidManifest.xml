@@ -7,8 +7,8 @@
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 
-
     <application
+        android:name=".ScoresApplication"
         android:allowBackup="true"
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_name"
@@ -30,11 +30,7 @@
         <activity
             android:name=".activity.AboutActivity"
             android:label="About"
-            android:parentActivityName=".activity.MainActivity" >
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value=".activity.MainActivity" />
-        </activity>
+            android:parentActivityName=".activity.MainActivity"/>
 
         <!-- Scores Provider -->
         <provider
