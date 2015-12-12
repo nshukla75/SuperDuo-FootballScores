@@ -1,8 +1,6 @@
-package barqsoft.footballscores;
+package barqsoft.footballscores.adapter;
 
-import android.content.Context;
 import android.os.Bundle;
-import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
@@ -20,6 +18,11 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.Locale;
+
+import barqsoft.footballscores.R;
+import barqsoft.footballscores.Utility;
+import barqsoft.footballscores.activity.MainActivity;
+import barqsoft.footballscores.fragment.MainScreenFragment;
 
 /**
  * Created by yehya khaled on 2/27/2015.

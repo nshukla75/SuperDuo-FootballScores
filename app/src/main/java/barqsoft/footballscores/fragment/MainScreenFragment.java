@@ -1,18 +1,22 @@
-package barqsoft.footballscores;
+package barqsoft.footballscores.fragment;
 
 import android.database.Cursor;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.ListView;
 
+import barqsoft.footballscores.R;
 import barqsoft.footballscores.data.DatabaseContract;
+import barqsoft.footballscores.adapter.scoresAdapter;
 
 
 /**
@@ -59,14 +63,55 @@ public class MainScreenFragment extends Fragment implements LoaderManager.Loader
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 // toggle detailsview of selected item
-                ViewHolder selected = (ViewHolder) view.getTag();
-                mAdapter.detail_match_id = selected.match_id;
-                MainActivity.selected_match_id = (int) selected.match_id;
-                mAdapter.notifyDataSetChanged();
+                View detailsView = view.findViewById(R.id.match_details);
+                if (detailsView.getVisibility() != View.VISIBLE) {
+                    view.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.score_selected));
+                    detailsView.setVisibility(View.VISIBLE);
+                    if ((position + 1) == parent.getCount()) {
+                        // if this is the last listview item scroll to it by selecting it
+                        parent.setSelection(position);
+                    }
+                } else {
+                    view.setBackgroundColor(ContextCompat.getColor(getContext(), android.R.color.white));
+                    detailsView.setVisibility(View.GONE);
+                }
+
+                // hide detailsview of all other items in the list
+                for (int i = 0; i < parent.getCount(); i++) {
+                    View otherItem = parent.getChildAt(i);
+                    if (otherItem != null && otherItem != view) {
+                        otherItem.setBackgroundColor(ContextCompat.getColor(getContext(), android.R.color.white));
+                        View otherItemDetailsView = otherItem.findViewById(R.id.match_details);
+                        otherItemDetailsView.setVisibility(View.GONE);
+                    }
+                }
             }
         });
+        score_list.setOnScrollListener(new AbsListView.OnScrollListener() {
+            /**
+             * Hide the detailsview of all listitems on scroll
+             * @param absListView AbsListView
+             * @param i int
+             */
+            @Override
+            public void onScrollStateChanged(AbsListView absListView, int i) {
+                for (int j = 0; j < absListView.getCount(); j++) {
+                    View otherItem = absListView.getChildAt(j);
+                    if (otherItem != null) {
+                        otherItem.setBackgroundColor(ContextCompat.getColor(getContext(), android.R.color.white));
+                        View otherItemDetailsView = otherItem.findViewById(R.id.match_details);
+                        otherItemDetailsView.setVisibility(View.GONE);
+                    }
+                }
+            }
+
+            @Override
+            public void onScroll(AbsListView absListView, int i, int i1, int i2) {
+            }
+        });
+
+        // initialise the loader
         getLoaderManager().initLoader(SCORES_LOADER,null,this);
-        mAdapter.detail_match_id = MainActivity.selected_match_id;
 
         return rootView;
     }

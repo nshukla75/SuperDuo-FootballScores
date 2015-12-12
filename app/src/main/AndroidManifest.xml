@@ -3,6 +3,7 @@
     package="barqsoft.footballscores" >
 
     <!-- PERMISSIONS -->
+    <!-- Mistake found: there was [android:maxSdkVersion="22"] tag in INTERNET permission-->
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 
@@ -16,7 +17,7 @@
 
         <!-- Main Activity -->
         <activity
-            android:name=".MainActivity"
+            android:name=".activity.MainActivity"
             android:label="@string/app_name"
             android:theme="@style/AppTheme">
             <intent-filter>
@@ -27,12 +28,12 @@
 
         <!-- About Activity -->
         <activity
-            android:name=".AboutActivity"
+            android:name=".activity.AboutActivity"
             android:label="About"
-            android:parentActivityName=".MainActivity" >
+            android:parentActivityName=".activity.MainActivity" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="barqsoft.footballscores.MainActivity" />
+                android:value=".activity.MainActivity" />
         </activity>
 
         <!-- Scores Provider -->
