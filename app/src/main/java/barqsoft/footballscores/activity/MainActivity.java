@@ -12,7 +12,7 @@ import android.widget.TextView;
 import barqsoft.footballscores.fragment.PagerFragment;
 import barqsoft.footballscores.R;
 
-public class MainActivity extends AppCompatActivity
+public class MainActivity extends BaseActivity
 {
     public static String LOG_TAG = "MainActivity";
 
