@@ -8,13 +8,18 @@ import android.support.v4.content.ContextCompat;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.ListView;
+import android.widget.Toast;
 
 import barqsoft.footballscores.R;
+import barqsoft.footballscores.Utility;
 import barqsoft.footballscores.data.DatabaseContract;
 import barqsoft.footballscores.adapter.scoresAdapter;
 
@@ -32,14 +37,14 @@ public class MainScreenFragment extends BaseFragment implements LoaderManager.Lo
 
     // date of this pagefragment
     private String fragmentdate;
+    private View mEmptyView;
 
-    /*private String[] fragmentdate = new String[1];
-    private int last_selected_item = -1;
 
     public MainScreenFragment()
     {
     }
-
+    /*private String[] fragmentdate = new String[1];
+    private int last_selected_item = -1;
     private void update_scores()
     {
         Intent service_start = new Intent(getActivity(), myFetchService.class);
@@ -53,6 +58,7 @@ public class MainScreenFragment extends BaseFragment implements LoaderManager.Lo
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              final Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_main, container, false);
+        mEmptyView = (View)rootView.findViewById(R.id.scores_empty_view);
         // create the scoresadapter
         mAdapter = new scoresAdapter(getActivity(),null,0);
 
@@ -115,9 +121,40 @@ public class MainScreenFragment extends BaseFragment implements LoaderManager.Lo
 
         return rootView;
     }
+
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        super.onCreateOptionsMenu(menu, inflater);
+        inflater.inflate(R.menu.menu_main, menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (R.id.action_refresh == item.getItemId()) {
+            onRefresh();
+            return true;
+        } else
+            return super.onOptionsItemSelected(item);
+    }
+
+    public void onRefresh() {
+        if (Utility.isNetworkAvailable(getActivity())) {
+
+            // start the football-data service to trigger loading the teams and fixtures
+            Utility.startFootballDataService(getActivity());
+
+        } else {
+
+            // if without internet, show a notice to the user in the form of a toast
+            Toast.makeText(getContext(), getString(R.string.network_required_notice), Toast.LENGTH_SHORT).show();
+        }
+    }
+
+
     public void setFragmentDate(String date) {
         fragmentdate = date;
     }
+
     @Override
     public Loader<Cursor> onCreateLoader(int i, Bundle bundle)
     {
@@ -134,13 +171,19 @@ public class MainScreenFragment extends BaseFragment implements LoaderManager.Lo
     @Override
     public void onLoadFinished(Loader<Cursor> cursorLoader, Cursor cursor)
     {
+        final int size = cursor.getCount();
         mAdapter.swapCursor(cursor);
+        showEmptyView(size == 0);
     }
 
     @Override
     public void onLoaderReset(Loader<Cursor> cursorLoader)
     {
         mAdapter.swapCursor(null);
+        showEmptyView(true);
+    }
+    private void showEmptyView(boolean show) {
+        if (mEmptyView != null) mEmptyView.animate().alpha(show ? 1 : 0).setDuration(200).start();
     }
 
 

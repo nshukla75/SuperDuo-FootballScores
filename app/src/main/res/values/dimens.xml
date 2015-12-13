@@ -12,4 +12,7 @@
     <dimen name="large_margin">36dp</dimen>
     <dimen name="toolbar_height">48dp</dimen>
     <dimen name="tabstrip_tab_padding_horizontal">16dp</dimen>
+    <dimen name="content_padding_small">8dp</dimen>
+    <dimen name="content_padding_normal">16dp</dimen>
+    <dimen name="content_padding_large">24dp</dimen>
 </resources>

@@ -29,6 +29,8 @@
     <string name="failed_loading_teams" translatable="false">Could not load teams for league</string>
     <string name="failed_loading_fixtures" translatable="false">Could not load fixtures from the api</string>
     <string name="empty_fixtures_list">No Scores Available</string>
+    <string name="scores_empty_message">There are no scores for this day.</string>
+    <string name="message_empty_image">No items image</string>
 
     <!-- Preferences - Api Key -->
     <string name="pref_apikey_key" translatable="false">api_key</string>

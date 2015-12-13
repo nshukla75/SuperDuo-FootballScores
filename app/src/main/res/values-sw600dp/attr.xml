@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <declare-styleable name="AnimatorStateView">
+        <attr name="messageText" format="string" />
+        <attr name="messageImage" format="reference" />
+    </declare-styleable>
+
+</resources>
