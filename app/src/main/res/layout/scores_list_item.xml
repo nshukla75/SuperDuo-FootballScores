@@ -2,14 +2,21 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="vertical">
+    android:orientation="vertical"
+    android:descendantFocusability="blocksDescendants"
+    >
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:padding="@dimen/small_margin"
+        android:paddingTop="@dimen/small_margin"
+        android:paddingLeft="@dimen/small_margin"
+        android:paddingStart="@dimen/small_margin"
+        android:paddingRight="@dimen/small_margin"
+        android:paddingEnd="@dimen/small_margin"
         android:paddingBottom="6dp"
-        android:background="@color/primary">
+        >
 
         <!-- Home Team -->
         <LinearLayout
@@ -115,7 +122,7 @@
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:visibility="gone"
-        android:background="@color/primary_dark"
+        android:background="@color/score_details"
         >
 
         <!-- League -->
@@ -155,11 +162,9 @@
             android:textSize="@dimen/TeamNames"
             android:textStyle="bold"
             android:textColor="@android:color/white"
-            android:background="@color/primary_dark"
+            android:background="@color/primary"
             android:text="@string/share_text"
             />
 
     </LinearLayout>
 </LinearLayout>
-
-
