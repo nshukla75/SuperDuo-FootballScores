@@ -27,7 +27,7 @@ import barqsoft.footballscores.fragment.MainScreenFragment;
 /**
  * Created by yehya khaled on 2/27/2015.
  */
-public class PagerFragment extends Fragment
+public class PagerFragment extends BaseFragment
 {
     // set the amount of pages in the viewpager
     public static final int NUM_PAGES = 5;

@@ -22,7 +22,7 @@ import barqsoft.footballscores.adapter.scoresAdapter;
 /**
  * A placeholder fragment containing a simple view.
  */
-public class MainScreenFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor>
+public class MainScreenFragment extends BaseFragment implements LoaderManager.LoaderCallbacks<Cursor>
 {
     // unique loader id
     public static final int SCORES_LOADER = 0;
