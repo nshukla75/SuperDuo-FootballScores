@@ -21,7 +21,7 @@ import android.support.v4.app.Fragment;
 import android.view.View;
 
 import barqsoft.footballscores.ScoresApplication;
-import butterknife.ButterKnife;
+
 
 public abstract class BaseFragment extends Fragment {
 
@@ -29,14 +29,12 @@ public abstract class BaseFragment extends Fragment {
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        ButterKnife.bind(this, view);
     }
 
     @CallSuper
     @Override
     public void onDestroyView() {
         super.onDestroyView();
-        ButterKnife.unbind(this);
     }
 
     @CallSuper

@@ -33,7 +33,7 @@ import barqsoft.footballscores.R;
  */
 public class myFetchService extends IntentService
 {
-    public static final String LOG_TAG = "myFetchService";
+    private static final String LOG_TAG = myFetchService.class.getSimpleName();
     public myFetchService()
     {
         super("myFetchService");

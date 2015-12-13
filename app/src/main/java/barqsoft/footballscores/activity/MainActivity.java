@@ -12,6 +12,7 @@ import android.widget.TextView;
 import barqsoft.footballscores.fragment.PagerFragment;
 import barqsoft.footballscores.R;
 
+
 public class MainActivity extends BaseActivity
 {
     public static String LOG_TAG = "MainActivity";
@@ -28,6 +29,7 @@ public class MainActivity extends BaseActivity
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         Log.d(LOG_TAG, "Reached MainActivity onCreate");

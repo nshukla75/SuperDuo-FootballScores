@@ -54,9 +54,10 @@ public class scoresAdapter extends CursorAdapter
         mHolder.home_crest.setContentDescription(homeTeamName);
 
         // match score
+
         mHolder.score.setText(Utility.getScores(
-                cursor.getColumnIndex(DatabaseContract.scores_table.HOME_GOALS_COL),
-                cursor.getColumnIndex(DatabaseContract.scores_table.AWAY_GOALS_COL)));
+                cursor.getInt(cursor.getColumnIndex(DatabaseContract.scores_table.HOME_GOALS_COL)),
+                cursor.getInt(cursor.getColumnIndex(DatabaseContract.scores_table.AWAY_GOALS_COL))));
 
         // match time
         mHolder.date.setText(
