@@ -30,8 +30,44 @@
         <activity
             android:name=".activity.AboutActivity"
             android:label="About"
-            android:parentActivityName=".activity.MainActivity"/>
+            android:parentActivityName=".activity.MainActivity">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="barqsoft.footballscores.activity.MainActivity" />
+        </activity>
+        <!-- LatestFixture Widget & Service -->
+        <receiver
+            android:name=".widget.LatestFixtureWidgetProvider"
+            android:label="@string/widget_latest_fixture_label"
+            >
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+                <action android:name="barqsoft.footballscores.ACTION_DATA_UPDATED" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/widget_info_latest_fixture"
+                />
+        </receiver>
+        <service android:name=".widget.LatestFixtureWidgetService" />
 
+        <!-- TodaysFixtures Widget & Service -->
+        <receiver
+            android:name=".widget.TodaysFixturesWidgetProvider"
+            android:label="@string/widget_todays_fixtures_label"
+            >
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+                <action android:name="barqsoft.footballscores.ACTION_DATA_UPDATED" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/widget_info_todays_fixtures"
+                />
+        </receiver>
+        <service
+            android:name=".widget.TodaysFixturesWidgetService"
+            android:permission="android.permission.BIND_REMOTEVIEWS" />
         <!-- Scores Provider -->
         <provider
             android:name=".data.ScoresProvider"
