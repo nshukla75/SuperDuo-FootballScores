@@ -13,7 +13,6 @@ import com.bumptech.glide.Glide;
 
 import barqsoft.footballscores.R;
 import barqsoft.footballscores.Utility;
-import barqsoft.footballscores.ViewHolder;
 import barqsoft.footballscores.data.DatabaseContract;
 
 /**
