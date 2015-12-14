@@ -2,7 +2,6 @@ package barqsoft.footballscores.service;
 
 import android.app.IntentService;
 import android.content.ContentValues;
-import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.util.Log;

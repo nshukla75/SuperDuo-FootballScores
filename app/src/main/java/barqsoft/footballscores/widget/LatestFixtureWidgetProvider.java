@@ -7,7 +7,6 @@ import android.content.Intent;
 
 import barqsoft.footballscores.BuildConfig;
 import barqsoft.footballscores.R;
-import barqsoft.footballscores.Utility;
 import barqsoft.footballscores.data.ScoresProvider;
 import barqsoft.footballscores.service.myFetchService;
 
@@ -27,7 +26,7 @@ public class LatestFixtureWidgetProvider extends AppWidgetProvider {
         super.onUpdate(context, appWidgetManager, appWidgetIds);
 
         // start the football data service to request the updated fixtures from the api (this will
-        //  cause the scoresprovider to send a broadcast when it finished updating the database)
+        //  cause the scores provider to send a broadcast when it finished updating the database)
         Intent footballDataService = new Intent(context, myFetchService.class);
         footballDataService.putExtra(
                 context.getString(R.string.pref_apikey_key),
@@ -48,7 +47,7 @@ public class LatestFixtureWidgetProvider extends AppWidgetProvider {
     public void onReceive(Context context, Intent intent) {
         super.onReceive(context, intent);
 
-        // refresh the widget by starting the widgetservice that will reload the data from the database
+        // refresh the widget by starting the widget service that will reload the data from the database
         if (ScoresProvider.ACTION_DATA_UPDATED.equals(intent.getAction())) {
             context.startService(new Intent(context, LatestFixtureWidgetService.class));
         }

@@ -105,11 +105,7 @@ public class Utility
         NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
 
         // return true if we have networkinfo and are connected
-        if (activeNetworkInfo != null && activeNetworkInfo.isConnected()) {
-            return true;
-        }  else {
-            return false;
-        }
+        return activeNetworkInfo != null && activeNetworkInfo.isConnected();
     }
 
     public static boolean contains(final int[] array, final int key) {

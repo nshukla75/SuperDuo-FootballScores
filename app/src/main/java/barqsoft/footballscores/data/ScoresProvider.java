@@ -6,12 +6,8 @@ import android.content.UriMatcher;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
-import android.database.sqlite.SQLiteQueryBuilder;
 import android.net.Uri;
 import android.util.Log;
-
-import barqsoft.footballscores.data.DatabaseContract;
-import barqsoft.footballscores.data.ScoresDBHelper;
 
 /**
  * Created by yehya khaled on 2/25/2015.

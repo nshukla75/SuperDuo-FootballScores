@@ -16,7 +16,7 @@ public class AboutActivity extends BaseActivity {
         // set the layout
         setContentView(R.layout.activity_about);
 
-        // set a toolbar as supportactionbar, with default title disabled and homebutton enabled
+        // set a toolbar as support actionbar, with default title disabled and home button enabled
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         if (getSupportActionBar() != null) {

@@ -2,7 +2,6 @@ package barqsoft.footballscores.fragment;
 
 import android.database.Cursor;
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.CursorLoader;
@@ -58,7 +57,7 @@ public class MainScreenFragment extends BaseFragment implements LoaderManager.Lo
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              final Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_main, container, false);
-        mEmptyView = (View)rootView.findViewById(R.id.scores_empty_view);
+        mEmptyView = rootView.findViewById(R.id.scores_empty_view);
         // create the scoresadapter
         mAdapter = new scoresAdapter(getActivity(),null,0);
 
