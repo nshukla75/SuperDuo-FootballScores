@@ -102,7 +102,7 @@ public class TodaysFixturesRemoteViewsFactory implements RemoteViewsService.Remo
             setRemoteContentDescription(views, R.id.away_crest, awayTeamName);
         }
 
-        // fill the intet template we received from the provider and add the listview position as
+        // fill the intent template we received from the provider and add the listview position as
         // extra and launch it onclick
         final Intent fillInIntent = new Intent();
         final Bundle extras = new Bundle();

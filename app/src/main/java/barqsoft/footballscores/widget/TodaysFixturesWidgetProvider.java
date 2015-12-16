@@ -34,7 +34,7 @@ public class TodaysFixturesWidgetProvider extends AppWidgetProvider {
             RemoteViews views = new RemoteViews(context.getPackageName(), R.layout.widget_todays_fixtures);
 
             // set the widget header title
-            views.setTextViewText(R.id.widget_title, context.getString(R.string.app_name) +" "+ context.getString(R.string.today));
+            views.setTextViewText(R.id.widget_title, context.getString(R.string.app_name) +"-"+ context.getString(R.string.today));
 
             // create an intent that will launch the mainactivity
             Intent intent = new Intent(context, MainActivity.class);

@@ -33,9 +33,10 @@ import barqsoft.footballscores.R;
 public class myFetchService extends IntentService
 {
     private static final String LOG_TAG = myFetchService.class.getSimpleName();
+    public static final String ACTION_DATA_UPDATED = "barqsoft.footballscores.ACTION_DATA_UPDATED";
     public myFetchService()
     {
-        super("myFetchService");
+        super(LOG_TAG);
     }
 
     // leagues we want to include
@@ -166,9 +167,14 @@ public class myFetchService extends IntentService
 
             // process the returned json data and insert found matches into the database
             if (fixtures != null) {
-                getApplicationContext().getContentResolver().bulkInsert(
+                int insertedData =  getApplicationContext().getContentResolver().bulkInsert(
                         DatabaseContract.BASE_CONTENT_URI,
                         processFixtures(fixtures));
+
+                if (insertedData > 0) {
+                    Log.v(LOG_TAG, "Successfully Inserted : " + String.valueOf(insertedData));
+                    sendBroadcast(new Intent(ACTION_DATA_UPDATED).setPackage(getPackageName()));
+                }
             } else {
                 Log.d(LOG_TAG, getString(R.string.failed_loading_teams));
             }

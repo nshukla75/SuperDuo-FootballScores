@@ -38,7 +38,7 @@ public class LatestFixtureWidgetService extends IntentService {
      * Constructor
      */
     public LatestFixtureWidgetService() {
-        super("LatestFixtureWidgetService");
+        super(LOG_TAG);
     }
 
     /**
