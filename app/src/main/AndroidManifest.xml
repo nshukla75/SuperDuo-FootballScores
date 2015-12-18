@@ -31,10 +31,17 @@
             android:name=".activity.AboutActivity"
             android:label="About"
             android:parentActivityName=".activity.MainActivity">
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value="barqsoft.footballscores.activity.MainActivity" />
         </activity>
+
+        <!-- Scores Provider -->
+        <provider
+            android:name=".data.ScoresProvider"
+            android:authorities="barqsoft.footballscores"
+            android:exported="false"/>
+
+        <!-- FootballData Service -->
+        <service android:name=".service.myFetchService" />
+
         <!-- LatestFixture Widget & Service -->
         <receiver
             android:name=".widget.LatestFixtureWidgetProvider"
@@ -67,15 +74,10 @@
         </receiver>
         <service
             android:name=".widget.TodaysFixturesWidgetService"
+            android:enabled="true"
+            android:exported="false"
             android:permission="android.permission.BIND_REMOTEVIEWS" />
-        <!-- Scores Provider -->
-        <provider
-            android:name=".data.ScoresProvider"
-            android:authorities="barqsoft.footballscores"
-            android:exported="false"/>
 
-        <!-- FootballData Service -->
-        <service android:name=".service.myFetchService" />
     </application>
 
 </manifest>

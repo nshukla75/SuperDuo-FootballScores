@@ -22,11 +22,11 @@ import barqsoft.footballscores.service.myFetchService;
  */
 public class Utility
 {
-    public static final int SERIE_A = 357;
+    /*public static final int SERIE_A = 357;
     public static final int PREMIER_LEGAUE = 354;
     public static final int CHAMPIONS_LEAGUE = 362;
     public static final int PRIMERA_DIVISION = 358;
-    public static final int BUNDESLIGA = 351;
+    public static final int BUNDESLIGA = 351;*/
     public static String getLeague(Context context,int league_num)
     {
         // get league codes and label from resources
@@ -73,26 +73,6 @@ public class Utility
         else
         {
             return String.valueOf(home_goals) + " - " + String.valueOf(awaygoals);
-        }
-    }
-
-    public static int getTeamCrestByTeamName (String teamname)
-    {
-        if (teamname==null){return R.drawable.no_icon;}
-        switch (teamname)
-        { //This is the set of icons that are currently in the app. Feel free to find and add more
-            //as you go.
-            case "Arsenal London FC" : return R.drawable.arsenal;
-            case "Manchester United FC" : return R.drawable.manchester_united;
-            case "Swansea City" : return R.drawable.swansea_city_afc;
-            case "Leicester City" : return R.drawable.leicester_city_fc_hd_logo;
-            case "Everton FC" : return R.drawable.everton_fc_logo1;
-            case "West Ham United FC" : return R.drawable.west_ham;
-            case "Tottenham Hotspur FC" : return R.drawable.tottenham_hotspur;
-            case "West Bromwich Albion" : return R.drawable.west_bromwich_albion_hd_logo;
-            case "Sunderland AFC" : return R.drawable.sunderland;
-            case "Stoke City FC" : return R.drawable.stoke_city;
-            default: return R.drawable.no_icon;
         }
     }
 
@@ -184,4 +164,26 @@ public class Utility
 
         return bitmap;
     }
+
+
+   /* public static int getTeamCrestByTeamName (String teamname)
+    {
+        if (teamname==null){return R.drawable.no_icon;}
+        switch (teamname)
+        { //This is the set of icons that are currently in the app. Feel free to find and add more
+            //as you go.
+            case "Arsenal London FC" : return R.drawable.arsenal;
+            case "Manchester United FC" : return R.drawable.manchester_united;
+            case "Swansea City" : return R.drawable.swansea_city_afc;
+            case "Leicester City" : return R.drawable.leicester_city_fc_hd_logo;
+            case "Everton FC" : return R.drawable.everton_fc_logo1;
+            case "West Ham United FC" : return R.drawable.west_ham;
+            case "Tottenham Hotspur FC" : return R.drawable.tottenham_hotspur;
+            case "West Bromwich Albion" : return R.drawable.west_bromwich_albion_hd_logo;
+            case "Sunderland AFC" : return R.drawable.sunderland;
+            case "Stoke City FC" : return R.drawable.stoke_city;
+            default: return R.drawable.no_icon;
+        }
+    }*/
+
 }

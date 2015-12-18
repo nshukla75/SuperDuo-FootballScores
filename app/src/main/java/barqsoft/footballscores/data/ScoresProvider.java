@@ -2,6 +2,7 @@ package barqsoft.footballscores.data;
 
 import android.content.ContentProvider;
 import android.content.ContentValues;
+import android.content.Intent;
 import android.content.UriMatcher;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
@@ -14,6 +15,8 @@ import android.util.Log;
  */
 public class ScoresProvider extends ContentProvider
 {
+    private static final String LOG_TAG = ScoresProvider.class.getSimpleName();
+
     // reference to our sqlitedbhelper
     private static ScoresDBHelper mOpenHelper;
 
@@ -206,12 +209,15 @@ public class ScoresProvider extends ContentProvider
                     }
                     db.setTransactionSuccessful();
                 } catch (SQLiteException e) {
-                    Log.d("Bulk Insert", "");
+                    Log.d(LOG_TAG, "");
                 } finally {
                     db.endTransaction();
                 }
                 if (getContext() != null) {
                     getContext().getContentResolver().notifyChange(uri, null);
+                    // tell broadcast receivers that data was updated (widgets)
+                    Intent dataUpdatedIntent = new Intent(ACTION_DATA_UPDATED).setPackage(getContext().getPackageName());
+                    getContext().sendBroadcast(dataUpdatedIntent);
                 }
                 return returncount;
             default:

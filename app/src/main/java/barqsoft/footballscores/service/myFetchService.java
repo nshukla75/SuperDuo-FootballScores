@@ -33,7 +33,7 @@ import barqsoft.footballscores.R;
 public class myFetchService extends IntentService
 {
     private static final String LOG_TAG = myFetchService.class.getSimpleName();
-    public static final String ACTION_DATA_UPDATED = "barqsoft.footballscores.ACTION_DATA_UPDATED";
+    //public static final String ACTION_DATA_UPDATED = "barqsoft.footballscores.ACTION_DATA_UPDATED";
     public myFetchService()
     {
         super(LOG_TAG);
@@ -59,8 +59,8 @@ public class myFetchService extends IntentService
             fetchTeams();
 
             // load fixtures for last- and next 2 days
-            fetchFixture("p2");
-            fetchFixture("n3");
+            fetchFixture("p3");
+            fetchFixture("n2");
         }
     }
     private void fetchTeams() {
@@ -167,14 +167,9 @@ public class myFetchService extends IntentService
 
             // process the returned json data and insert found matches into the database
             if (fixtures != null) {
-                int insertedData =  getApplicationContext().getContentResolver().bulkInsert(
+                getApplicationContext().getContentResolver().bulkInsert(
                         DatabaseContract.BASE_CONTENT_URI,
                         processFixtures(fixtures));
-
-                if (insertedData > 0) {
-                    Log.v(LOG_TAG, "Successfully Inserted : " + String.valueOf(insertedData));
-                    sendBroadcast(new Intent(ACTION_DATA_UPDATED).setPackage(getPackageName()));
-                }
             } else {
                 Log.d(LOG_TAG, getString(R.string.failed_loading_teams));
             }
