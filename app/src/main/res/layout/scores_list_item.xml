@@ -164,6 +164,7 @@
             android:textColor="@android:color/white"
             android:background="@color/primary"
             android:text="@string/share_text"
+            android:contentDescription="@string/share"
             />
 
     </LinearLayout>

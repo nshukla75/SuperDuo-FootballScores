@@ -8,7 +8,7 @@
     <string name="action_about">About</string>
     <string name="action_refresh">Refresh</string>
     <string name="share_text">Share</string>
-
+    <string name="share">Share Score</string>
     <!-- Days -->
     <string name="yesterday">YESTERDAY</string>
     <string name="today">TODAY</string>
