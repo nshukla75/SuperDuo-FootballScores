@@ -8,7 +8,7 @@ Project3-Udacity-SuperDuo-FootBallApp
   - Football Scores app has content descriptions for all buttons.
   - Football Scores app supports layout mirroring.
 
-#Execution Instruction
+#Execution Instructions
 Requires: Android Studio v1.5.0+
 
 Dependencies:
